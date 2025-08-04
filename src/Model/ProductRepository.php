@@ -17,14 +17,31 @@ class ProductRepository
     public function findAll($filters = [])
     {
         $sql = "SELECT p.*, c.name as category_name 
-                FROM products p 
-                LEFT JOIN categories c ON p.category_id = c.id";
-        
+            FROM products p 
+            INNER JOIN categories c ON p.category_id = c.id";
+
+        $conditions = [];
+        $params = [];
+
         if (!empty($filters['name'])) {
-            $sql .= " WHERE p.name LIKE '%" . $filters['name'] . "%'";
+            $conditions[] = "p.name LIKE :name";
+            $params[':name'] = '%' . $filters['name'] . '%';
         }
-        
-        $stmt = $this->pdo->query($sql);
+
+        if (!empty($filters['category_id'])) {
+            $conditions[] = "p.category_id = :category_id";
+            $params[':category_id'] = $filters['category_id'];
+        }
+
+        if ($conditions) {
+            $sql .= ' WHERE ' . implode(' AND ', $conditions);
+        }
+
+        $sql .= ' ORDER BY p.id ASC';
+
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->execute($params);
+
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
