@@ -16,8 +16,8 @@ class ProductController
     public function list()
     {
         $filters = [
-            'name' => $_GET['search_name'],
-            'category_id' => $_GET['search_category']
+            'name' => $_GET['search_name'] ?? '',
+            'category_id' => $_GET['search_category'] ?? ''
         ];
         
         $products = $this->repository->findAll($filters);
