@@ -7,8 +7,9 @@ class FlashMessageHelper
     public function getStatusMessage(array $query): ?string
     {
         return match ($query['status'] ?? null) {
+            'updated' => 'Товар успешно обновлён!',
             'deleted' => 'Товар успешно удалён!',
-            'error' => 'Ошибка при удалении товара.',
+            'error' => 'Ошибка!',
             default => null,
         };
     }

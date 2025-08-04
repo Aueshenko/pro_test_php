@@ -19,7 +19,7 @@
             <label for="category_id">Категория</label>
             <select name="category_id" id="category_id">
                 <?php foreach ($categories as $category): ?>
-                    <option value="<?= $category['id'] ?>" <?= (($product['category_id'] ?? '') == $category['id']) ? 'selected' : '' ?>>
+                    <option value="<?= $category['id'] ?>" <?= (($product['category_id'] ?? '') === $category['id']) ? 'selected' : '' ?>>
                         <?= htmlspecialchars($category['name']) ?>
                     </option>
                 <?php endforeach; ?>

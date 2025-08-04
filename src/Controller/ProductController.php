@@ -61,10 +61,22 @@ class ProductController
         $this->render('add_product', ['categories' => $categories]);
     }
 
-    public function edit($id): void
+    public function edit($productId): void
     {
-        $product = [];
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            $data = $_POST;
+            $data['productId'] = $productId;
+
+            $updateStatus = $this->productService->updateOne($data);
+            $status = $updateStatus ? 'updated' : 'error';
+
+            header('Location: /index.php?action=list&status=' . $status);
+            exit;
+        }
+
+        $product = $this->productService->findById($productId);
         $categories = $this->categoryService->findAll();
+
         $this->render('edit_product', [
             'product' => $product,
             'categories' => $categories

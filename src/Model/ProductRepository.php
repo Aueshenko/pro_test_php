@@ -27,10 +27,36 @@ class ProductRepository
         $stmt = $this->pdo->query($sql);
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
-    
-    public function findById($id)
+
+    public function findById(int $productId): ?array
     {
-        return null;
+        $stmt = $this->pdo->prepare("SELECT * FROM products WHERE id = :id LIMIT 1");
+        $stmt->execute([':id' => $productId]);
+        $product = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        return $product ?: null;
+    }
+
+    public function updateOne(array $data): int
+    {
+        $sql = "UPDATE products 
+            SET name = :name,
+                description = :description,
+                price = :price,
+                category_id = :category_id
+            WHERE id = :id";
+
+        $stmt = $this->pdo->prepare($sql);
+
+        $stmt->execute([
+            ':name' => $data['name'],
+            ':description' => $data['description'],
+            ':price' => $data['price'],
+            ':category_id' => $data['category_id'],
+            ':id' => $data['id'],
+        ]);
+
+        return $stmt->rowCount();
     }
 
     public function deleteOne($productId): int

@@ -26,9 +26,22 @@ class ProductService
         return $this->productRepository->findAll($filters);
     }
 
-    public function findById($id)
+    public function findById($productId): array
     {
-        return $this->productRepository->findById($id);
+        return $this->productRepository->findById($productId);
+    }
+
+    public function updateOne(array $data): bool
+    {
+        $data = [
+            'id' => (int)$data['productId'],
+            'name' => trim($data['name'] ?? ''),
+            'description' => trim($data['description'] ?? ''),
+            'price' => (float)($data['price'] ?? 0),
+            'category_id' => !empty($data['category_id']) ? (int)$data['category_id'] : null,
+        ];
+
+        return $this->productRepository->updateOne($data) > 0;
     }
 
     public function deleteOne($productId): bool
