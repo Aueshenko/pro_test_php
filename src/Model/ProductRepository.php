@@ -28,15 +28,15 @@ class ProductRepository
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
     
-    public function findAllCategories()
-    {
-        $stmt = $this->pdo->query("SELECT * FROM categories ORDER BY name ASC");
-        return $stmt->fetchAll(PDO::FETCH_ASSOC);
-    }
-    
     public function findById($id)
     {
         return null;
     }
 
+    public function deleteOne($productId): int
+    {
+        $stmt = $this->pdo->prepare("DELETE FROM products WHERE id = :id");
+        $stmt->execute([':id' => $productId]);
+        return $stmt->rowCount();
+    }
 }

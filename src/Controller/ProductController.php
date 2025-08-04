@@ -2,43 +2,44 @@
 
 namespace App\Controller;
 
-use App\Model\ProductRepository;
+use App\Helper\FlashMessageHelper;
+use App\Service\ProductService;
+use App\Service\CategoryService;
 
 class ProductController
 {
-    private $repository;
+    private ProductService $productService;
+    private CategoryService $categoryService;
+    private FlashMessageHelper $flashMessageHelper;
 
     public function __construct()
     {
-        $this->repository = new ProductRepository();
+        $this->productService = new ProductService();
+        $this->categoryService = new CategoryService();
+        $this->flashMessageHelper = new FlashMessageHelper();
     }
 
-    public function list()
+    public function list(): void
     {
-        $filters = [
-            'name' => $_GET['search_name'] ?? '',
-            'category_id' => $_GET['search_category'] ?? ''
-        ];
-        
-        $products = $this->repository->findAll($filters);
-        $categories = $this->repository->findAllCategories();
-        
+        $filters = $this->productService->getFiltersFromRequest($_GET);
+
         $seo_data = [
             'title' => 'Админ-панель',
             'description' => 'Управление продуктами'
         ];
-        
+
         $this->render('product_list', [
-            'products' => $products,
-            'categories' => $categories,
+            'products' => $this->productService->findAll($filters),
+            'categories' => $this->categoryService->findAll(),
             'filters' => $filters,
-            'seo' => $seo_data
+            'seo' => $seo_data,
+            'flashMessage' => $this->flashMessageHelper->getStatusMessage($_GET)
         ]);
     }
 
-    public function show($id)
+    public function show($id): void
     {
-        $product = $this->repository->findById($id);
+        $product = $this->productService->findById($id);
 
         if (!$product) {
             header("HTTP/1.0 404 Not Found");
@@ -54,25 +55,28 @@ class ProductController
         ]);
     }
 
-    public function add()
+    public function add(): void
     {
-        $categories = $this->repository->findAllCategories();
+        $categories = $this->categoryService->findAll();
         $this->render('add_product', ['categories' => $categories]);
     }
 
-    public function edit($id)
+    public function edit($id): void
     {
         $product = [];
-        $categories = $this->repository->findAllCategories();
+        $categories = $this->categoryService->findAll();
         $this->render('edit_product', [
             'product' => $product,
             'categories' => $categories
         ]);
     }
     
-    public function delete($id)
+    public function delete($id): void
     {
-        header('Location: /index.php?action=list');
+        $deleteStatus = $this->productService->deleteOne($id);
+        $status = $deleteStatus ? 'deleted' : 'error';
+
+        header('Location: /index.php?action=list&status=' . $status);
         exit();
     }
     
