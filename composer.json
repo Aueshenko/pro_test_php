@@ -1,0 +1,11 @@
+{
+    "name": "recruiter/php-test",
+    "description": "PHP technical test.",
+    "type": "project",
+    "autoload": {
+        "psr-4": {
+            "App\\": "src/"
+        }
+    },
+    "require": {}
+}

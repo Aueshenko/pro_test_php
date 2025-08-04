@@ -1,0 +1,28 @@
+<div class="header">
+    <h1>Добавить новый продукт</h1>
+</div>
+<div class="form-container">
+    <form method="POST" action="/index.php?action=add">
+        <div class="form-group">
+            <label for="name">Название продукта</label>
+            <input type="text" name="name" id="name" required>
+        </div>
+        <div class="form-group">
+            <label for="description">Описание</label>
+            <textarea name="description" id="description" rows="4"></textarea>
+        </div>
+        <div class="form-group">
+            <label for="price">Цена</label>
+            <input type="number" step="0.01" name="price" id="price" required>
+        </div>
+        <div class="form-group">
+            <label for="category_id">Категория</label>
+            <select name="category_id" id="category_id">
+                <?php foreach ($categories as $category): ?>
+                    <option value="<?= $category['id'] ?>"><?= htmlspecialchars($category['name']) ?></option>
+                <?php endforeach; ?>
+            </select>
+        </div>
+        <button type="submit" class="btn btn-primary">Сохранить</button>
+    </form>
+</div>

@@ -1,0 +1,51 @@
+<div class="header">
+    <h1>Каталог продуктов</h1>
+    <div>
+        <a href="/index.php?action=export" class="btn btn-secondary">Экспорт в CSV</a>
+        <a href="/index.php?action=add" class="btn btn-primary">Добавить продукт</a>
+    </div>
+</div>
+
+<form method="GET" action="/index.php" class="filter-form">
+    <input type="hidden" name="action" value="list">
+    <input type="text" name="search_name" placeholder="Поиск по названию..." value="<?= $filters['name'] ?? '' ?>">
+    <select name="search_category">
+        <option value="">Все категории</option>
+        <?php foreach ($categories as $category): ?>
+            <option value="<?= $category['id'] ?>" <?= (($filters['category_id'] ?? '') == $category['id']) ? 'selected' : '' ?>>
+                <?= $category['name'] ?>
+            </option>
+        <?php endforeach; ?>
+    </select>
+    <button type="submit" class="btn btn-primary">Фильтр</button>
+</form>
+
+<table>
+    <thead>
+        <tr>
+            <th>Продукт</th>
+            <th>Описание</th>
+            <th>Цена</th>
+            <th>Категория</th>
+            <th>Действия</th>
+        </tr>
+    </thead>
+    <tbody>
+        <?php foreach ($products as $product): ?>
+            <tr>
+                <td><a href="/index.php?action=show&id=<?= $product['id'] ?>"><?= $product['name'] ?></a></td>
+                <td><?= $product['description'] ?></td>
+                <td><?= $product['price'] ?> ₽</td>
+                <td><?= $product['category_name'] ?></td>
+                <td class="actions">
+                    <a href="/index.php?action=edit&id=<?= $product['id'] ?>" title="Редактировать">
+                        <svg fill="#4a69bd" viewBox="0 0 24 24"><path d="M20.71,7.04C21.1,6.65 21.1,6 20.71,5.63L18.37,3.29C18,2.9 17.35,2.9 16.96,3.29L15.12,5.12L18.87,8.87M3,17.25V21H6.75L17.81,9.93L14.06,6.18L3,17.25Z" /></svg>
+                    </a>
+                    <a href="/index.php?action=delete&id=<?= $product['id'] ?>" title="Удалить" onclick="return confirm('Вы уверены, что хотите удалить этот продукт?');">
+                        <svg fill="#ff6b6b" viewBox="0 0 24 24"><path d="M19,4H15.5L14.5,3H9.5L8.5,4H5V6H19M6,19A2,2 0 0,0 8,21H16A2,2 0 0,0 18,19V7H6V19Z" /></svg>
+                    </a>
+                </td>
+            </tr>
+        <?php endforeach; ?>
+    </tbody>
+</table>

@@ -1,0 +1,17 @@
+<div class="header">
+    <h1><?= $product['name'] ?? 'Продукт' ?></h1>
+    <a href="/index.php?action=list" class="btn btn-secondary">Назад к каталогу</a>
+</div>
+
+<div class="product-detail-container" style="display: flex; gap: 20px;">
+    <div class="product-image">
+        <img src="<?= $product['image_url'] ?? 'assets/placeholder.png' ?>" alt="<?= $product['name'] ?? '' ?>" style="max-width: 300px; border-radius: 8px;">
+    </div>
+    <div class="product-info">
+        <p class="product-price" style="font-size: 24px; color: var(--primary-color); margin: 0;"><?= $product['price'] ?? 0 ?> ₽</p>
+        <p class="product-category" style="color: var(--grey-color);">Категория: <?= $product['category_name'] ?? 'Не указана' ?></p>
+        <div class="product-description">
+            <p><?= $product['description'] ?? '' ?></p>
+        </div>
+    </div>
+</div>

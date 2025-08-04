@@ -1,0 +1,30 @@
+<div class="header">
+    <h1>Редактировать продукт: <?= htmlspecialchars($product['name'] ?? '...') ?></h1>
+</div>
+<div class="form-container">
+    <form method="POST" action="/index.php?action=edit&id=<?= $product['id'] ?? '' ?>">
+        <div class="form-group">
+            <label for="name">Название продукта</label>
+            <input type="text" name="name" id="name" value="<?= htmlspecialchars($product['name'] ?? '') ?>" required>
+        </div>
+        <div class="form-group">
+            <label for="description">Описание</label>
+            <textarea name="description" id="description" rows="4"><?= htmlspecialchars($product['description'] ?? '') ?></textarea>
+        </div>
+        <div class="form-group">
+            <label for="price">Цена</label>
+            <input type="number" step="0.01" name="price" id="price" value="<?= htmlspecialchars($product['price'] ?? '') ?>" required>
+        </div>
+        <div class="form-group">
+            <label for="category_id">Категория</label>
+            <select name="category_id" id="category_id">
+                <?php foreach ($categories as $category): ?>
+                    <option value="<?= $category['id'] ?>" <?= (($product['category_id'] ?? '') == $category['id']) ? 'selected' : '' ?>>
+                        <?= htmlspecialchars($category['name']) ?>
+                    </option>
+                <?php endforeach; ?>
+            </select>
+        </div>
+        <button type="submit" class="btn btn-primary">Обновить</button>
+    </form>
+</div>

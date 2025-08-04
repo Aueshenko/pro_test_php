@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title><?= $seo['title'] ?? 'Админ-панель' ?></title>
+    <meta name="description" content="<?= $seo['description'] ?? 'Управление продуктами' ?>">
+    
+    
+    <link rel="stylesheet" href="assets/style.css">
+    
+</head>
+<body>
+    <div class="admin-wrapper">
+        <aside class="sidebar">
+            <h2>Меню</h2>
+            <ul>
+                <li><a href="/index.php?action=list">Список продуктов</a></li>
+                <li><a href="/index.php?action=add">Добавить продукт</a></li>
+                <li><a href="/index.php?action=import">Импорт CSV</a></li>
+                <li><a href="/index.php?action=sitemap" target="_blank">Карта сайта (sitemap.xml)</a></li>
+            </ul>
+        </aside>
+        <main class="main-content">
+            <?php include $content; ?>
+        </main>
+    </div>
+</body>
+</html>
