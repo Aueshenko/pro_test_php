@@ -3,14 +3,17 @@
 namespace App\Service;
 
 use App\Model\ProductRepository;
+use App\Validation\ProductValidator;
 
 class ProductService
 {
     private ProductRepository $productRepository;
+    private ProductValidator $productValidator;
 
     public function __construct()
     {
         $this->productRepository = new ProductRepository();
+        $this->productValidator = new ProductValidator();
     }
 
     public function getFiltersFromRequest(array $query): array
@@ -31,17 +34,31 @@ class ProductService
         return $this->productRepository->findById($productId);
     }
 
-    public function updateOne(array $data): bool
+    public function addOne(array $data): bool|array
     {
-        $data = [
-            'id' => (int)$data['productId'],
-            'name' => trim($data['name'] ?? ''),
-            'description' => trim($data['description'] ?? ''),
-            'price' => (float)($data['price'] ?? 0),
-            'category_id' => !empty($data['category_id']) ? (int)$data['category_id'] : null,
-        ];
+        if (!$this->productValidator->validate($data)) {
+            return $this->productValidator->getErrors();
+        }
 
-        return $this->productRepository->updateOne($data) > 0;
+        $cleanData = $this->productValidator->sanitize($data);
+
+        $result = $this->productRepository->addOne($cleanData);
+
+        return $result ? true : ['db_error' => 'Ошибка при сохранении в базе'];
+    }
+
+    public function updateOne(array $data): bool|array
+    {
+        if (!$this->productValidator->validate($data)) {
+            return $this->productValidator->getErrors();
+        }
+
+        $cleanData = $this->productValidator->sanitize($data);
+        $cleanData['id'] = (int)($data['productId'] ?? 0);
+
+        return $this->productRepository->updateOne($cleanData) > 0
+            ? true
+            : ['db_error' => 'Ошибка при обновлении в базе'];
     }
 
     public function deleteOne($productId): bool

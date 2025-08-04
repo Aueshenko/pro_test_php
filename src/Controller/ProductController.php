@@ -57,8 +57,43 @@ class ProductController
 
     public function add(): void
     {
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            $result = $this->productService->addOne($_POST);
+
+            if ($result === true) {
+                header('Location: /index.php?action=list&status=added');
+                exit;
+            }
+
+            $params = array_merge(['error' => 'validation'], $_POST);
+            foreach ($result as $field => $msg) {
+                $params["error_$field"] = $msg;
+            }
+
+            $query = http_build_query($params);
+
+            header("Location: /index.php?action=add&$query");
+            exit;
+        }
+
         $categories = $this->categoryService->findAll();
-        $this->render('add_product', ['categories' => $categories]);
+
+        $formData = [
+            'name' => $_GET['name'] ?? '',
+            'description' => $_GET['description'] ?? '',
+            'price' => $_GET['price'] ?? '',
+            'category_id' => $_GET['category_id'] ?? '',
+        ];
+
+        $errors = [];
+        foreach ($_GET as $key => $value) {
+            if (str_starts_with($key, 'error_')) {
+                $field = substr($key, 6);
+                $errors[$field] = $value;
+            }
+        }
+
+        $this->render('add_product', ['categories' => $categories, 'formData' => $formData, 'errors' => $errors]);
     }
 
     public function edit($productId): void
@@ -67,10 +102,14 @@ class ProductController
             $data = $_POST;
             $data['productId'] = $productId;
 
-            $updateStatus = $this->productService->updateOne($data);
-            $status = $updateStatus ? 'updated' : 'error';
+            $result = $this->productService->updateOne($data);
 
-            header('Location: /index.php?action=list&status=' . $status);
+            if ($result === true) {
+                header('Location: /index.php?action=list&status=updated');
+            }
+            else {
+                header('Location: /index.php?action=list&status=error');
+            }
             exit;
         }
 

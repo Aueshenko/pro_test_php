@@ -37,6 +37,21 @@ class ProductRepository
         return $product ?: null;
     }
 
+    public function addOne(array $data): bool
+    {
+        $sql = "INSERT INTO products (name, description, price, category_id) 
+            VALUES (:name, :description, :price, :category_id)";
+
+        $stmt = $this->pdo->prepare($sql);
+
+        return $stmt->execute([
+            ':name' => $data['name'],
+            ':description' => $data['description'] ?? null,
+            ':price' => $data['price'],
+            ':category_id' => $data['category_id'] ?? null,
+        ]);
+    }
+
     public function updateOne(array $data): int
     {
         $sql = "UPDATE products 
