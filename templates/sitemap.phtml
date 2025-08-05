@@ -1,0 +1,29 @@
+<?= '<?xml version="1.0" encoding="UTF-8"?>' . "\n" ?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+        xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">
+    <?php foreach ($products as $product):
+        $loc = htmlspecialchars($baseUrl . '/index.php?action=show&id=' . urlencode($product['id']), ENT_QUOTES | ENT_XML1);
+        $lastmod = $product['updated_at'] ?? $product['created_at'] ?? null;
+        $lastmodIso = $lastmod ? date('c', strtotime($lastmod)) : null;
+        $changefreq = 'weekly';
+        $priority = '0.8';
+        $imageUrl = !empty($product['image_url']) ? htmlspecialchars($baseUrl . '/' . ltrim($product['image_url'], '/'), ENT_QUOTES | ENT_XML1) : null;
+        $imageTitle = htmlspecialchars($product['name'] ?? '', ENT_QUOTES | ENT_XML1);
+        ?>
+        <url>
+            <loc><?= $loc ?></loc>
+            <?php if ($lastmodIso): ?>
+                <lastmod><?= $lastmodIso ?></lastmod>
+            <?php endif; ?>
+            <changefreq><?= $changefreq ?></changefreq>
+            <priority><?= $priority ?></priority>
+            <?php if ($imageUrl): ?>
+                <image:image>
+                    <image:loc><?= $imageUrl ?></image:loc>
+                    <image:caption><?= $imageTitle ?></image:caption>
+                    <image:title><?= $imageTitle ?></image:title>
+                </image:image>
+            <?php endif; ?>
+        </url>
+    <?php endforeach; ?>
+</urlset>

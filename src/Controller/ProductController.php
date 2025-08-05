@@ -144,16 +144,33 @@ class ProductController
         $this->redirect('/index.php', ['action' => 'list']);
     }
 
-    public function sitemap()
+    public function sitemap(): void
     {
         header('Content-Type: application/xml; charset=utf-8');
-        echo '<?xml version="1.0" encoding="UTF-8"?>';
+
+        $scheme = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 'https' : 'http';
+        $host = $_SERVER['HTTP_HOST'];
+        $baseUrl = $scheme . '://' . $host;
+
+        $products = $this->productService->findAll();
+
+        $this->render('sitemap', [
+            'products' => $products,
+            'baseUrl' => $baseUrl
+        ], $isXml = true);
     }
-    
-    private function render($view, $data = [])
+
+    private function render(string $view, array $data = [], bool $isXml = false): void
     {
         extract($data);
-        $content = __DIR__ . '/../../templates/' . $view . '.phtml';
+        $templatePath = __DIR__ . '/../../templates/' . $view . '.phtml';
+
+        if ($isXml) {
+            require $templatePath;
+            exit;
+        }
+
+        $content = $templatePath;
         require __DIR__ . '/../../templates/admin_layout.phtml';
     }
 
