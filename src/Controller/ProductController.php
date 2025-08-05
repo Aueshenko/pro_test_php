@@ -3,6 +3,7 @@
 namespace App\Controller;
 
 use App\Helper\FlashMessageHelper;
+use App\Helper\SeoHelper;
 use App\Service\ProductService;
 use App\Service\CategoryService;
 
@@ -10,30 +11,25 @@ class ProductController
 {
     private ProductService $productService;
     private CategoryService $categoryService;
-    private FlashMessageHelper $flashMessageHelper;
 
     public function __construct()
     {
         $this->productService = new ProductService();
         $this->categoryService = new CategoryService();
-        $this->flashMessageHelper = new FlashMessageHelper();
     }
 
     public function list(): void
     {
         $filters = $this->productService->getFiltersFromRequest($_GET);
 
-        $seo_data = [
-            'title' => 'Админ-панель',
-            'description' => 'Управление продуктами'
-        ];
+        $seo_data = SeoHelper::buildCatalogSeo();
 
         $this->render('product_list', [
             'products' => $this->productService->findAll($filters),
             'categories' => $this->categoryService->findAll(),
             'filters' => $filters,
             'seo' => $seo_data,
-            'flashMessage' => $this->flashMessageHelper->getStatusMessage($_GET),
+            'flashMessage' => flashMessageHelper::getStatusMessage($_GET),
             'exportUrl' => $this->productService->buildExportUrl($_GET)
         ]);
     }
@@ -48,7 +44,7 @@ class ProductController
             exit;
         }
 
-        $seo_data = [];
+        $seo_data = SeoHelper::buildProductSeo($product);
 
         $this->render('product_detail', [
             'product' => $product,

@@ -4,7 +4,7 @@ namespace App\Helper;
 
 class FlashMessageHelper
 {
-    public function getStatusMessage(array $query): ?string
+    public static function getStatusMessage(array $query): ?string
     {
         return match ($query['status'] ?? null) {
             'added' => 'Товар успешно добавлен!',
