@@ -47,7 +47,14 @@ class ProductRepository
 
     public function findById(int $productId): ?array
     {
-        $stmt = $this->pdo->prepare("SELECT * FROM products WHERE id = :id LIMIT 1");
+        $stmt = $this->pdo->prepare("
+            SELECT p.*, c.name AS category_name
+            FROM products p
+            INNER JOIN categories c ON c.id = p.category_id
+            WHERE p.id = :id
+            LIMIT 1
+        ");
+
         $stmt->execute([':id' => $productId]);
         $product = $stmt->fetch(PDO::FETCH_ASSOC);
 

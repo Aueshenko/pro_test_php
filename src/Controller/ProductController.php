@@ -44,7 +44,7 @@ class ProductController
 
         if (!$product) {
             header("HTTP/1.0 404 Not Found");
-            echo "<h1>404 - Продукт не найден (или метод findById не реализован)</h1>";
+            echo "<h1>404 - Продукт не найден</h1>";
             exit;
         }
 
