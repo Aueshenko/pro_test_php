@@ -99,22 +99,32 @@ class ProductService
         return $result;
     }
 
-    public function handleCsvExport($products): void
+    public function handleCsvExport(array $products): void
     {
-        if (empty($products)) {
-            $products = [[
-                'id' => '',
+        $csvData = [];
+
+        foreach ($products as $product) {
+            $csvData[] = [
+                'name'        => $product['name'] ?? '',
+                'description' => $product['description'] ?? '',
+                'price'       => $product['price'] ?? '',
+                'category_id' => $product['category_id'] ?? '',
+                'image_url'   => $product['image_url'] ?? '',
+            ];
+        }
+
+        if (empty($csvData)) {
+            $csvData[] = [
                 'name' => '',
                 'description' => '',
                 'price' => '',
                 'category_id' => '',
-                'category_name' => ''
-            ]];
+                'image_url' => ''
+            ];
         }
 
         $filename = 'products_export_' . date('Y-m-d_H-i-s') . '.csv';
-
-        $this->csvHandler->outputToBrowser($filename, $products);
+        $this->csvHandler->outputToBrowser($filename, $csvData);
     }
 
     public function importFromCsv(string $filePath): array
