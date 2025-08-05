@@ -33,7 +33,8 @@ class ProductController
             'categories' => $this->categoryService->findAll(),
             'filters' => $filters,
             'seo' => $seo_data,
-            'flashMessage' => $this->flashMessageHelper->getStatusMessage($_GET)
+            'flashMessage' => $this->flashMessageHelper->getStatusMessage($_GET),
+            'exportUrl' => $this->productService->buildExportUrl($_GET)
         ]);
     }
 
@@ -61,8 +62,7 @@ class ProductController
             $result = $this->productService->addOne($_POST);
 
             if ($result === true) {
-                header('Location: /index.php?action=list&status=added');
-                exit;
+                $this->redirect('/index.php', ['action' => 'list', 'status' => 'added']);
             }
 
             $params = array_merge(['error' => 'validation'], $_POST);
@@ -70,10 +70,7 @@ class ProductController
                 $params["error_$field"] = $msg;
             }
 
-            $query = http_build_query($params);
-
-            header("Location: /index.php?action=add&$query");
-            exit;
+            $this->redirect('/index.php', array_merge(['action' => 'add'], $params));
         }
 
         $categories = $this->categoryService->findAll();
@@ -105,12 +102,9 @@ class ProductController
             $result = $this->productService->updateOne($data);
 
             if ($result === true) {
-                header('Location: /index.php?action=list&status=updated');
+                $this->redirect('/index.php', ['action' => 'list', 'status' => 'updated']);
             }
-            else {
-                header('Location: /index.php?action=list&status=error');
-            }
-            exit;
+            $this->redirect('/index.php', ['action' => 'list', 'status' => 'error']);
         }
 
         $product = $this->productService->findById($productId);
@@ -127,20 +121,31 @@ class ProductController
         $deleteStatus = $this->productService->deleteOne($id);
         $status = $deleteStatus ? 'deleted' : 'error';
 
-        header('Location: /index.php?action=list&status=' . $status);
-        exit();
-    }
-    
-    public function import()
-    {
-        $this->render('import_form');
+        $this->redirect('/index.php', ['action' => 'list', 'status' => $status]);
     }
 
-    public function export()
+    public function import(): void
     {
-        header('Content-Type: text/plain');
-        echo "Функционал экспорта должен быть реализован здесь.";
-        exit();
+        $result = [
+            'formError' => null,
+            'success' => null,
+            'rowErrors' => []
+        ];
+
+        if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_FILES['csv_file'])) {
+            $result = $this->productService->handleCsvImport($_FILES['csv_file']);
+        }
+
+        $this->render('import_form', $result);
+    }
+
+    public function export(): void
+    {
+        $filters = $this->productService->getFiltersFromRequest($_GET);
+        $products = $this->productService->findAll($filters);
+        $this->productService->handleCsvExport($products);
+
+        $this->redirect('/index.php', ['action' => 'list']);
     }
 
     public function sitemap()
@@ -154,5 +159,16 @@ class ProductController
         extract($data);
         $content = __DIR__ . '/../../templates/' . $view . '.phtml';
         require __DIR__ . '/../../templates/admin_layout.phtml';
+    }
+
+    private function redirect(string $path, array $params = [], int $statusCode = 302): void
+    {
+        if (!empty($params)) {
+            $query = http_build_query($params);
+            $path .= (str_contains($path, '?') ? '&' : '?') . $query;
+        }
+
+        header("Location: $path", true, $statusCode);
+        exit;
     }
 }

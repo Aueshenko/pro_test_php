@@ -97,4 +97,29 @@ class ProductRepository
         $stmt->execute([':id' => $productId]);
         return $stmt->rowCount();
     }
+
+    public function addMany(array $products): int
+    {
+        if (empty($products)) {
+            return 0;
+        }
+
+        $placeholders = [];
+        $values = [];
+
+        foreach ($products as $product) {
+            $placeholders[] = '(?, ?, ?, ?)';
+            $values[] = $product['name'];
+            $values[] = $product['description'] ?? null;
+            $values[] = $product['price'];
+            $values[] = $product['category_id'] ?? null;
+        }
+
+        $sql = "INSERT INTO products (name, description, price, category_id) VALUES " . implode(', ', $placeholders);
+
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->execute($values);
+
+        return $stmt->rowCount();
+    }
 }
