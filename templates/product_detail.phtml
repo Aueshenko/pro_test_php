@@ -20,3 +20,20 @@
         </div>
     </div>
 </div>
+
+<script type="application/ld+json">
+<?= json_encode([
+        '@context' => 'https://schema.org/',
+        '@type' => 'Product',
+        'name' => $product['name'],
+        'description' => $product['description'],
+        'image' => $product['image_url'] ?? 'assets/placeholder.png',
+        'sku' => $product['id'],
+        'offers' => [
+            '@type' => 'Offer',
+            'price' => (float)$product['price'],
+            'priceCurrency' => 'RUB',
+            'availability' => 'https://schema.org/InStock'
+        ]
+    ], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT) ?>
+</script>
