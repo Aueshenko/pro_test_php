@@ -3,7 +3,12 @@
     <a href="/index.php?action=list" class="btn btn-secondary">Назад к каталогу</a>
 </div>
 
-<div class="product-detail-container" style="display: flex; gap: 20px;">
+<div class="product-detail-container"
+     data-product-id="<?= (int)$product['id'] ?>"
+     data-product-name="<?= htmlspecialchars($product['name'], ENT_QUOTES) ?>"
+     data-product-price="<?= (float)$product['price'] ?>"
+     data-product-category="<?= htmlspecialchars($product['category_name'], ENT_QUOTES) ?>"
+     style="display: flex; gap: 20px;">
     <div class="product-image">
         <img src="<?= $product['image_url'] ?? 'assets/placeholder.png' ?>" alt="<?= $product['name'] ?? '' ?>" style="max-width: 300px; border-radius: 8px;">
     </div>

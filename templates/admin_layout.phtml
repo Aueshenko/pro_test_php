@@ -24,6 +24,15 @@
     <?php endif; ?>
     <meta property="og:type" content="website">
 
+    <!-- Google Analytics + dataLayer -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXXXXXX"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'G-XXXXXXXXXX');
+    </script>
+
     <link rel="stylesheet" href="assets/style.css">
 </head>
 <body>
@@ -41,5 +50,6 @@
             <?php include $content; ?>
         </main>
     </div>
+    <script src="assets/js/analytics-events.js"></script>
 </body>
 </html>

@@ -1,12 +1,12 @@
 <div class="header">
     <h1>Каталог продуктов</h1>
     <div>
-        <a href="<?=$exportUrl?>" class="btn btn-secondary">Экспорт в CSV</a>
+        <a href="<?=$exportUrl?>" class="btn btn-secondary js-track-export-csv">Экспорт в CSV</a>
         <a href="/index.php?action=add" class="btn btn-primary">Добавить продукт</a>
     </div>
 </div>
 
-<form method="GET" action="/index.php" class="filter-form">
+<form method="GET" action="/index.php" class="filter-form js-track-submit-filter">
     <input type="hidden" name="action" value="list">
     <input type="text" name="search_name" placeholder="Поиск по названию..." value="<?= htmlspecialchars($filters['name'] ?? '') ?>">
     <select name="search_category">
