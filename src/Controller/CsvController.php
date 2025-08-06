@@ -43,9 +43,8 @@ class CsvController extends BaseController
 
     public function export(): void
     {
-        $filters = $this->productService->getFiltersFromRequest($_GET);
-        $products = $this->productService->findAll($filters);
-        $this->csvService->handleCsvExport($products);
+        $data = $this->productService->getProducts($_GET);
+        $this->csvService->handleCsvExport($data['products']);
         exit;
     }
 }

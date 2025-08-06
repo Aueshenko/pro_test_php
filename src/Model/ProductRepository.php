@@ -14,11 +14,11 @@ class ProductRepository
         $this->pdo = Database::getConnection();
     }
 
-    public function findAll($filters = [])
+    public function findAll($filters = [], int $limit = null, int $offset = null)
     {
         $sql = "SELECT p.*, c.name as category_name 
-            FROM products p 
-            INNER JOIN categories c ON p.category_id = c.id";
+        FROM products p 
+        INNER JOIN categories c ON p.category_id = c.id";
 
         $conditions = [];
         $params = [];
@@ -39,10 +39,57 @@ class ProductRepository
 
         $sql .= ' ORDER BY p.id ASC';
 
+        if ($limit !== null && $offset !== null) {
+            $sql .= ' LIMIT :limit OFFSET :offset';
+            $params[':limit'] = $limit;
+            $params[':offset'] = $offset;
+        }
+
         $stmt = $this->pdo->prepare($sql);
-        $stmt->execute($params);
+
+        foreach ($params as $key => $value) {
+            if (in_array($key, [':limit', ':offset'])) {
+                $stmt->bindValue($key, $value, PDO::PARAM_INT);
+            } else {
+                $stmt->bindValue($key, $value);
+            }
+        }
+
+        $stmt->execute();
 
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+    public function countAll($filters = []): int
+    {
+        $sql = "SELECT COUNT(*) FROM products p";
+
+        $conditions = [];
+        $params = [];
+
+        if (!empty($filters['name'])) {
+            $conditions[] = "p.name LIKE :name";
+            $params[':name'] = '%' . $filters['name'] . '%';
+        }
+
+        if (!empty($filters['category_id'])) {
+            $conditions[] = "p.category_id = :category_id";
+            $params[':category_id'] = $filters['category_id'];
+        }
+
+        if ($conditions) {
+            $sql .= ' WHERE ' . implode(' AND ', $conditions);
+        }
+
+        $stmt = $this->pdo->prepare($sql);
+
+        foreach ($params as $key => $value) {
+            $stmt->bindValue($key, $value);
+        }
+
+        $stmt->execute();
+
+        return (int)$stmt->fetchColumn();
     }
 
     public function findById(int $productId): ?array

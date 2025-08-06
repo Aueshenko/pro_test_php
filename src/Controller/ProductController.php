@@ -23,17 +23,16 @@ class ProductController extends BaseController
 
     public function list(): void
     {
-        $filters = $this->productService->getFiltersFromRequest($_GET);
-
-        $seo_data = SeoHelper::buildCatalogSeo();
+        $data = $this->productService->getProducts($_GET);
 
         $this->render('product_list', [
-            'products' => $this->productService->findAll($filters),
+            'products' => $data['products'],
             'categories' => $this->categoryService->findAll(),
-            'filters' => $filters,
-            'seo' => $seo_data,
+            'filters' => $data['filters'],
+            'seo' => SeoHelper::buildCatalogSeo(),
             'flashMessage' => FlashMessageHelper::getStatusMessage($_GET),
-            'exportUrl' => $this->csvService->buildExportUrl($_GET)
+            'exportUrl' => $this->csvService->buildExportUrl($_GET),
+            'pagination' => $data['pagination'],
         ]);
     }
 

@@ -24,9 +24,14 @@ class ProductService
         ];
     }
 
-    public function findAll($filters = []): array
+    public function findAll($filters = [], int $limit = null, int $offset = null): array
     {
-        return $this->productRepository->findAll($filters);
+        return $this->productRepository->findAll($filters, $limit, $offset);
+    }
+
+    public function countAll($filters = []): int
+    {
+        return $this->productRepository->countAll($filters);
     }
 
     public function findById($productId): array
@@ -92,6 +97,30 @@ class ProductService
         return [
             'success' => $successCount,
             'errors' => $errors
+        ];
+    }
+
+    public function getProducts(array $queryParams, int $limit = 10): array
+    {
+        $filters = $this->getFiltersFromRequest($queryParams);
+
+        $page = isset($queryParams['page']) && is_numeric($queryParams['page']) && $queryParams['page'] > 0
+            ? (int)$queryParams['page']
+            : 1;
+
+        $offset = ($page - 1) * $limit;
+        $totalProducts = $this->countAll($filters);
+        $totalPages = (int)ceil($totalProducts / $limit);
+
+        return [
+            'products' => $this->findAll($filters, $limit, $offset),
+            'filters' => $filters,
+            'pagination' => [
+                'page' => $page,
+                'limit' => $limit,
+                'totalProducts' => $totalProducts,
+                'totalPages' => $totalPages
+            ]
         ];
     }
 }
