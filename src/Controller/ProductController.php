@@ -7,7 +7,7 @@ use App\Helper\SeoHelper;
 use App\Service\ProductService;
 use App\Service\CategoryService;
 
-class ProductController
+class ProductController extends BaseController
 {
     private ProductService $productService;
     private CategoryService $categoryService;
@@ -29,7 +29,7 @@ class ProductController
             'categories' => $this->categoryService->findAll(),
             'filters' => $filters,
             'seo' => $seo_data,
-            'flashMessage' => flashMessageHelper::getStatusMessage($_GET),
+            'flashMessage' => FlashMessageHelper::getStatusMessage($_GET),
             'exportUrl' => $this->productService->buildExportUrl($_GET)
         ]);
     }
@@ -118,70 +118,5 @@ class ProductController
         $status = $deleteStatus ? 'deleted' : 'error';
 
         $this->redirect('/index.php', ['action' => 'list', 'status' => $status]);
-    }
-
-    public function import(): void
-    {
-        $result = [
-            'formError' => null,
-            'success' => null,
-            'rowErrors' => []
-        ];
-
-        if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_FILES['csv_file'])) {
-            $result = $this->productService->handleCsvImport($_FILES['csv_file']);
-        }
-
-        $this->render('import_form', $result);
-    }
-
-    public function export(): void
-    {
-        $filters = $this->productService->getFiltersFromRequest($_GET);
-        $products = $this->productService->findAll($filters);
-        $this->productService->handleCsvExport($products);
-
-        $this->redirect('/index.php', ['action' => 'list']);
-    }
-
-    public function sitemap(): void
-    {
-        header('Content-Type: application/xml; charset=utf-8');
-
-        $scheme = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 'https' : 'http';
-        $host = $_SERVER['HTTP_HOST'];
-        $baseUrl = $scheme . '://' . $host;
-
-        $products = $this->productService->findAll();
-
-        $this->render('sitemap', [
-            'products' => $products,
-            'baseUrl' => $baseUrl
-        ], $isXml = true);
-    }
-
-    private function render(string $view, array $data = [], bool $isXml = false): void
-    {
-        extract($data);
-        $templatePath = __DIR__ . '/../../templates/' . $view . '.phtml';
-
-        if ($isXml) {
-            require $templatePath;
-            exit;
-        }
-
-        $content = $templatePath;
-        require __DIR__ . '/../../templates/admin_layout.phtml';
-    }
-
-    private function redirect(string $path, array $params = [], int $statusCode = 302): void
-    {
-        if (!empty($params)) {
-            $query = http_build_query($params);
-            $path .= (str_contains($path, '?') ? '&' : '?') . $query;
-        }
-
-        header("Location: $path", true, $statusCode);
-        exit;
     }
 }

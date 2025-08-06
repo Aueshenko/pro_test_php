@@ -2,36 +2,40 @@
 
 require_once __DIR__ . '/../vendor/autoload.php';
 
+use App\Controller\CsvController;
 use App\Controller\ProductController;
+use App\Controller\SitemapController;
 
 $action = $_GET['action'] ?? 'list';
 $id = isset($_GET['id']) ? (int)$_GET['id'] : null;
 
-$controller = new ProductController();
+$productController = new ProductController();
+$csvController = new CsvController();
+$sitemapController = new SitemapController();
 
 switch ($action) {
     case 'add':
-        $controller->add();
+        $productController->add();
         break;
     case 'edit':
-        $controller->edit($id);
+        $productController->edit($id);
         break;
     case 'delete':
-        $controller->delete($id);
+        $productController->delete($id);
         break;
     case 'import':
-        $controller->import();
+        $csvController->import();
         break;
     case 'export':
-        $controller->export();
+        $csvController->export();
         break;
     case 'show':
-        $controller->show($id);
+        $productController->show($id);
         break;
     case 'sitemap':
-        $controller->sitemap();
+        $sitemapController->sitemap();
         break;
     default:
-        $controller->list();
+        $productController->list();
         break;
 }
