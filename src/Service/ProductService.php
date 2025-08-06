@@ -3,20 +3,17 @@
 namespace App\Service;
 
 use App\Model\ProductRepository;
-use App\Utils\CsvHandler;
 use App\Validation\ProductValidator;
 
 class ProductService
 {
     private ProductRepository $productRepository;
     private ProductValidator $productValidator;
-    private CsvHandler $csvHandler;
 
     public function __construct()
     {
         $this->productRepository = new ProductRepository();
         $this->productValidator = new ProductValidator();
-        $this->csvHandler = new CsvHandler();
     }
 
     public function getFiltersFromRequest(array $query): array
@@ -69,68 +66,8 @@ class ProductService
         return $this->productRepository->deleteOne($productId) > 0;
     }
 
-    public function handleCsvImport(array $file): array
+    public function importProducts(array $rows): array
     {
-        $result = [
-            'formError' => null,
-            'success' => null,
-            'rowErrors' => []
-        ];
-
-        if ($file['error'] !== UPLOAD_ERR_OK) {
-            $result['formError'] = match ($file['error']) {
-                UPLOAD_ERR_INI_SIZE, UPLOAD_ERR_FORM_SIZE => 'Файл слишком большой',
-                UPLOAD_ERR_NO_FILE => 'Файл не выбран',
-                default => 'Ошибка загрузки файла'
-            };
-            return $result;
-        }
-
-        $extension = strtolower(pathinfo($file['name'], PATHINFO_EXTENSION));
-        if ($extension !== 'csv') {
-            $result['formError'] = 'Можно загружать только файлы с расширением CSV';
-            return $result;
-        }
-
-        $importResult = $this->importFromCsv($file['tmp_name']);
-        $result['success'] = $importResult['success'];
-        $result['rowErrors'] = $importResult['errors'];
-
-        return $result;
-    }
-
-    public function handleCsvExport(array $products): void
-    {
-        $csvData = [];
-
-        foreach ($products as $product) {
-            $csvData[] = [
-                'name'        => $product['name'] ?? '',
-                'description' => $product['description'] ?? '',
-                'price'       => $product['price'] ?? '',
-                'category_id' => $product['category_id'] ?? '',
-                'image_url'   => $product['image_url'] ?? '',
-            ];
-        }
-
-        if (empty($csvData)) {
-            $csvData[] = [
-                'name' => '',
-                'description' => '',
-                'price' => '',
-                'category_id' => '',
-                'image_url' => ''
-            ];
-        }
-
-        $filename = 'products_export_' . date('Y-m-d_H-i-s') . '.csv';
-        $this->csvHandler->outputToBrowser($filename, $csvData);
-    }
-
-    public function importFromCsv(string $filePath): array
-    {
-        $rows = $this->csvHandler->read($filePath);
-
         $errors = [];
         $validProducts = [];
 
@@ -156,13 +93,5 @@ class ProductService
             'success' => $successCount,
             'errors' => $errors
         ];
-    }
-
-    public function buildExportUrl(array $currentQuery): string
-    {
-        $params = $currentQuery;
-        $params['action'] = 'export';
-
-        return '/index.php?' . http_build_query($params);
     }
 }

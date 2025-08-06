@@ -30,10 +30,9 @@ class BaseController
             $safeParams = [];
             foreach ($params as $key => $value) {
                 $safeParams[$key] = is_string($value)
-                    ? htmlspecialchars($value, ENT_QUOTES | ENT_HTML5, 'UTF-8')
+                    ? rawurlencode($value)
                     : $value;
             }
-
             $query = http_build_query($safeParams);
             $path .= (str_contains($path, '?') ? '&' : '?') . $query;
         }

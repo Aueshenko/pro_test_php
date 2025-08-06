@@ -4,6 +4,7 @@ namespace App\Controller;
 
 use App\Helper\FlashMessageHelper;
 use App\Helper\SeoHelper;
+use App\Service\CsvService;
 use App\Service\ProductService;
 use App\Service\CategoryService;
 
@@ -11,11 +12,13 @@ class ProductController extends BaseController
 {
     private ProductService $productService;
     private CategoryService $categoryService;
+    private CsvService $csvService;
 
     public function __construct()
     {
         $this->productService = new ProductService();
         $this->categoryService = new CategoryService();
+        $this->csvService = new CsvService();
     }
 
     public function list(): void
@@ -30,7 +33,7 @@ class ProductController extends BaseController
             'filters' => $filters,
             'seo' => $seo_data,
             'flashMessage' => FlashMessageHelper::getStatusMessage($_GET),
-            'exportUrl' => $this->productService->buildExportUrl($_GET)
+            'exportUrl' => $this->csvService->buildExportUrl($_GET)
         ]);
     }
 
