@@ -27,7 +27,14 @@ class BaseController
     protected function redirect(string $path, array $params = [], int $statusCode = 302): void
     {
         if (!empty($params)) {
-            $query = http_build_query($params);
+            $safeParams = [];
+            foreach ($params as $key => $value) {
+                $safeParams[$key] = is_string($value)
+                    ? htmlspecialchars($value, ENT_QUOTES | ENT_HTML5, 'UTF-8')
+                    : $value;
+            }
+
+            $query = http_build_query($safeParams);
             $path .= (str_contains($path, '?') ? '&' : '?') . $query;
         }
 
